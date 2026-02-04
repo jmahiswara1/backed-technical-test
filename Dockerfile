@@ -17,6 +17,10 @@ RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Fix: Ensure only mpm_prefork is enabled (to avoid "More than one MPM loaded" error)
+RUN a2dismod mpm_event mpm_worker || true
+RUN a2enmod mpm_prefork
+
 # Set working directory
 WORKDIR /var/www/html
 
