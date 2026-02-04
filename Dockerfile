@@ -18,7 +18,8 @@ RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd
 RUN a2enmod rewrite
 
 # Fix: Ensure only mpm_prefork is enabled (to avoid "More than one MPM loaded" error)
-RUN a2dismod mpm_event mpm_worker || true
+# Remove all existing mpm symlinks first to be safe
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load
 RUN a2enmod mpm_prefork
 
 # Set working directory
