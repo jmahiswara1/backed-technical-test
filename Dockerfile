@@ -17,11 +17,6 @@ RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Fix: Ensure only mpm_prefork is enabled (to avoid "More than one MPM loaded" error)
-# Remove all existing mpm symlinks first to be safe
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load
-RUN a2enmod mpm_prefork
-
 # Set working directory
 WORKDIR /var/www/html
 
@@ -41,6 +36,12 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Fix: Ensure only mpm_prefork is enabled (Final check)
+RUN a2dismod mpm_event || true \
+    && a2dismod mpm_worker || true \
+    && a2enmod mpm_prefork \
+    && echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Expose port
 EXPOSE 80
