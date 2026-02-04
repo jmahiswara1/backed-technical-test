@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Fix AH00534: Force disable conflicting MPMs at runtime before starting Apache
+# This is a fail-safe in case the build-time fix was overridden
+if [ -d "/etc/apache2/mods-enabled" ]; then
+    rm -f /etc/apache2/mods-enabled/mpm_event.load
+    rm -f /etc/apache2/mods-enabled/mpm_worker.load
+    rm -f /etc/apache2/mods-enabled/mpm_event.conf
+    rm -f /etc/apache2/mods-enabled/mpm_worker.conf
+fi
+
 # Configure port for Railway/Heroku/Render if PORT env is set
 if [ -n "$PORT" ]; then
     sed -i "s/80/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
