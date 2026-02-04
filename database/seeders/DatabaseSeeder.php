@@ -12,18 +12,23 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => 'password',
-            'role' => 'admin',
-        ]);
+        // Gunakan firstOrCreate agar aman dijalankan berulang kali (idempotent)
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => 'password', // Password akan di-hash otomatis oleh model cast
+                'role' => 'admin',
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Employee',
-            'email' => 'employee@example.com',
-            'password' => 'password',
-            'role' => 'employee',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'employee@example.com'],
+            [
+                'name' => 'Employee',
+                'password' => 'password',
+                'role' => 'employee',
+            ]
+        );
     }
 }
