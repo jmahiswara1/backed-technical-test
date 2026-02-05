@@ -14,6 +14,10 @@ if [ -n "$PORT" ]; then
     sed -i "s/80/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 fi
 
+# Fix permissions at runtime (crucial for PaaS)
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Run migrations
 php artisan migrate --force
 
